@@ -63,6 +63,9 @@ import {PolicyRuleListComponent} from './policyrule/component';
 import {PropertyComponent} from './property/component';
 import {ProxyComponent} from './proxy/component';
 import {ResourceQuotaListComponent} from './quotas/component';
+import {BaremetalListComponent} from './resourcelist/baremetal/component';
+import {BaremetalObjectListComponent} from './resourcelist/baremetalobject/component';
+import {BaremetalVersionListComponent} from './resourcelist/baremetalversion/component';
 import {ClusterRoleListComponent} from './resourcelist/clusterrole/component';
 import {ConfigMapListComponent} from './resourcelist/configmap/component';
 import {CRDListComponent} from './resourcelist/crd/component';
@@ -105,6 +108,9 @@ const components = [
   AllocationChartComponent,
   ActionbarDetailTriggerComponent,
 
+  BaremetalListComponent,
+  BaremetalObjectListComponent,
+  BaremetalVersionListComponent,
   BreadcrumbsComponent,
 
   CardComponent,

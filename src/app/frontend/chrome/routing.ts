@@ -135,6 +135,12 @@ const routes: Routes = [
         loadChildren: 'resource/config/secret/module#SecretModule',
       },
 
+      // Baremetal Hosts
+      {
+        path: 'baremetalhost',
+        loadChildren: 'baremetal/module#BaremetalModule',
+      },
+
       // Custom resource definitions
       {path: 'customresourcedefinition', loadChildren: 'crd/module#CrdModule'},
 

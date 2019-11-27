@@ -36,6 +36,8 @@ export enum ListIdentifier {
   event = 'event',
   resource = 'resource',
   plugin = 'plugin',
+  baremetal = 'baremetallist',
+  baremetalObject = 'baremetalObject',
 }
 
 export enum ListGroupIdentifier {

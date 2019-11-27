@@ -22,6 +22,7 @@ import (
 
 	"github.com/kubernetes/dashboard/src/app/backend/handler/parser"
 	"github.com/kubernetes/dashboard/src/app/backend/resource/customresourcedefinition/types"
+	"github.com/kubernetes/dashboard/src/app/backend/resource/baremetalhost/types"
 
 	"github.com/kubernetes/dashboard/src/app/backend/plugin"
 
@@ -36,6 +37,7 @@ import (
 	clientapi "github.com/kubernetes/dashboard/src/app/backend/client/api"
 	"github.com/kubernetes/dashboard/src/app/backend/errors"
 	"github.com/kubernetes/dashboard/src/app/backend/integration"
+        "github.com/kubernetes/dashboard/src/app/backend/resource/baremetalhost"
 	"github.com/kubernetes/dashboard/src/app/backend/resource/clusterrole"
 	"github.com/kubernetes/dashboard/src/app/backend/resource/clusterrolebinding"
 	"github.com/kubernetes/dashboard/src/app/backend/resource/common"
@@ -598,6 +600,31 @@ func CreateHTTPAPIHandler(iManager integration.IntegrationManager, cManager clie
 		apiV1Ws.GET("/crd/{namespace}/{crd}/{object}/event").
 			To(apiHandler.handleGetCustomResourceObjectEvents).
 			Writes(common.EventList{}))
+
+        apiV1Ws.Route(
+                apiV1Ws.GET("/baremetalhost").
+                        To(apiHandler.handleGetBaremetalList).
+                        Writes(bmtypes.BaremetalList{}))
+
+        apiV1Ws.Route(
+                apiV1Ws.GET("/baremetalhost/{baremetalhost}").
+                        To(apiHandler.handleGetBaremetalDetail).
+                        Writes(bmtypes.BaremetalDetail{}))
+
+	apiV1Ws.Route(
+	        apiV1Ws.GET("/baremetalhost/{namespace}/{baremetalhost}/object").
+                        To(apiHandler.handleGetBaremetalObjectList).
+                        Writes(bmtypes.BaremetalObjectList{}))
+
+        apiV1Ws.Route(
+                apiV1Ws.GET("/baremetalhost/{namespace}/{baremetalhost}/{object}").
+                       To(apiHandler.handleGetBaremetalObjectDetail).
+                       Writes(bmtypes.BaremetalObjectDetail{}))
+
+        apiV1Ws.Route(
+                apiV1Ws.GET("/baremetalhost/{namespace}/{baremetalhost}/{object}/event").
+                       To(apiHandler.handleBaremetalObjectEvents).
+                       Writes(common.EventList{}))
 
 	apiV1Ws.Route(
 		apiV1Ws.GET("/storageclass").
@@ -2358,6 +2385,104 @@ func (apiHandler *APIHandler) handleGetCustomResourceObjectEvents(request *restf
 	}
 
 	response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetBaremetalList(request *restful.Request, response *restful.Response) {
+        apiextensionsclient, err := apiHandler.cManager.APIExtensionsClient(request)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        dataSelect := parser.ParseDataSelectPathParameter(request)
+        result, err := baremetalhost.GetBaremetalList(apiextensionsclient, dataSelect)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetBaremetalDetail(request *restful.Request, response *restful.Response) {
+        config, err := apiHandler.cManager.Config(request)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+
+        apiextensionsclient, err := apiHandler.cManager.APIExtensionsClient(request)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        name := request.PathParameter("baremetalhost")
+        result, err := baremetalhost.GetBaremetalDetail(apiextensionsclient, config, name)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetBaremetalObjectList(request *restful.Request, response *restful.Response) {
+        config, err := apiHandler.cManager.Config(request)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        apiextensionsclient, err := apiHandler.cManager.APIExtensionsClient(request)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        baremetalName := request.PathParameter("baremetalhost")
+        namespace := parseNamespacePathParameter(request)
+        dataSelect := parser.ParseDataSelectPathParameter(request)
+        result, err := baremetalhost.GetBaremetalObjectList(apiextensionsclient, config, namespace, dataSelect, baremetalName)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleGetBaremetalObjectDetail(request *restful.Request, response *restful.Response) {
+        config, err := apiHandler.cManager.Config(request)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        apiextensionsclient, err := apiHandler.cManager.APIExtensionsClient(request)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        name := request.PathParameter("object")
+        baremetalName := request.PathParameter("baremetalhost")
+        namespace := parseNamespacePathParameter(request)
+        result, err := baremetalhost.GetBaremetalObjectDetail(apiextensionsclient, namespace, config, baremetalName, name)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        response.WriteHeaderAndEntity(http.StatusOK, result)
+}
+
+func (apiHandler *APIHandler) handleBaremetalObjectEvents(request *restful.Request, response *restful.Response) {
+        k8sClient, err := apiHandler.cManager.Client(request)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        name := request.PathParameter("object")
+        namespace := request.PathParameter("namespace")
+        dataSelect := parser.ParseDataSelectPathParameter(request)
+        dataSelect.MetricQuery = dataselect.StandardMetrics
+        result, err := baremetalhost.GetEventsForBaremetalObject(k8sClient, dataSelect, namespace, name)
+        if err != nil {
+                errors.HandleInternalError(response, err)
+                return
+        }
+        response.WriteHeaderAndEntity(http.StatusOK, result)
 }
 
 func (apiHandler *APIHandler) handleLogSource(request *restful.Request, response *restful.Response) {

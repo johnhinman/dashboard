@@ -142,6 +142,7 @@ const (
 	ResourceKindRoleBinding              = "rolebinding"
 	ResourceKindPlugin                   = "plugin"
 	ResourceKindEndpoint                 = "endpoint"
+	ResourceKindBaremetalHost            = "baremetalhost"
 )
 
 // Scalable method return whether ResourceKind is scalable.
@@ -221,6 +222,7 @@ var KindToAPIMapping = map[string]APIMapping{
 	ResourceKindEndpoint:                 {"endpoints", ClientTypeDefault, true},
 	ResourceKindClusterRole:              {"clusterroles", ClientTypeRbacClient, false},
 	ResourceKindPlugin:                   {"plugins", ClientTypePluginsClient, true},
+	ResourceKindBaremetalHost:            {"baremetalhosts",ClientTypeAPIExtensionsClient, false},
 }
 
 // IsSelectorMatching returns true when an object with the given selector targets the same

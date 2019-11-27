@@ -80,6 +80,15 @@ export interface CronJobList extends ResourceList {
   status: Status;
 }
 
+export interface BaremetalList extends ResourceList {
+  items: BaremetalHost[];
+}
+
+export interface BaremetalObjectList extends ResourceList {
+  typeMeta: TypeMeta;
+  items: BaremetalObject[];
+}
+
 export interface CRDList extends ResourceList {
   items: CRD[];
 }
@@ -201,6 +210,15 @@ export interface CronJob extends Resource {
   active: number;
   lastSchedule: string;
 }
+
+export interface BaremetalHost extends Resource {
+  group: string;
+  scope: string;
+  namekind: string;
+  established: string;
+}
+
+export interface BaremetalObject extends Resource {}
 
 export interface CRD extends Resource {
   group: string;
@@ -458,6 +476,19 @@ export interface StorageClassDetail extends ResourceDetail {
 export interface ConfigMapDetail extends ResourceDetail {
   data: StringMap;
 }
+
+export interface BaremetalDetail extends ResourceDetail {
+  version?: string;
+  group: string;
+  scope: string;
+  names: BaremetalNames;
+  versions: CRDVersion[];
+  objects: BaremetalObjectList;
+  conditions: Condition[];
+  subresources: string[];
+}
+
+export interface BaremetalObjectDetail extends ResourceDetail {}
 
 export interface CRDDetail extends ResourceDetail {
   version?: string;
@@ -744,6 +775,15 @@ export interface Container {
   env: EnvVar[];
   commands: string[];
   args: string[];
+}
+
+export interface BaremetalNames {
+  plural: string;
+  singular: string;
+  shortNames?: string[];
+  kind: string;
+  listKind?: string;
+  categories?: string[];
 }
 
 export interface CRDNames {

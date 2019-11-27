@@ -131,6 +131,16 @@ limitations under the License.
 
     <div class="kd-nav-group">
       <kd-nav-item class="kd-nav-group-item"
+                   state="/baremetalhost"
+                   [exact]="true"
+                   i18n>Baremetal Hosts
+      </kd-nav-item>
+
+      <kd-pinner-nav kind="baremetalhost"></kd-pinner-nav>
+    </div>
+
+    <div class="kd-nav-group">
+      <kd-nav-item class="kd-nav-group-item"
                    id="sidebar-crd"
                    state="/customresourcedefinition"
                    [exact]="true"
