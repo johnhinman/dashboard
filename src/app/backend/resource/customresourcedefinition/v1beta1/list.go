@@ -46,15 +46,20 @@ func toCustomResourceDefinitionList(crds []apiextensionsv1beta1.CustomResourceDe
 		ListMeta: api.ListMeta{TotalItems: len(crds)},
 		Errors:   nonCriticalErrors,
 	}
-
+        var crdTotal int = 0;
 	crdCells, filteredTotal := dataselect.GenericDataSelectWithFilter(toCells(crds), dsQuery)
 	crds = fromCells(crdCells)
 	crdList.ListMeta = api.ListMeta{TotalItems: filteredTotal}
-
 	for _, crd := range crds {
-		crdList.Items = append(crdList.Items, toCustomResourceDefinition(&crd))
+		var kind string
+		// filter out Baremetal hosts, add other crds
+		kind = crd.Spec.Names.Kind
+		if (kind != "BareMetalHost") {
+			crdList.Items = append(crdList.Items, toCustomResourceDefinition(&crd))
+			crdTotal++
+		}
+		crdList.ListMeta = api.ListMeta{TotalItems: crdTotal}
 	}
-
 	return crdList
 }
 
